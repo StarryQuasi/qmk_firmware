@@ -18,6 +18,12 @@
         "nkro": true,
         "rgb_matrix": true
     },
+    "secure": {
+        "enabled": true,
+        "idle_timeout": 0,
+        "unlock_sequence": [[1, 2], [10, 2]],
+        "unlock_timeout": 2000
+    },
     "matrix_pins": {
         "cols": ["A0", "A1", "A2", "A3", "A4", "A8", "A9", "A10"],
         "rows": ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12", "B13"]
