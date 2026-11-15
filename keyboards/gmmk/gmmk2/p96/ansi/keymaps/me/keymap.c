@@ -30,6 +30,7 @@ enum custom_keycodes {
   MY_WINV,                // Presses Win + V
   MY_WINSPC,              // Presses Win + Space
   MY_TGPPLS,              // Toggle numpad plus or right click
+  MY_TGPENT,              // Toggle numpad enter or left click
   MY_TGBRK,               // Toggle insert or break
 };
 
@@ -62,7 +63,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // Caps   A         S         D         F         G         H         J         K         L         ;         '                   Enter                         4         5         6
   _______,  _______,  _______,  _______,  _______,  _______,  _______,  RM_PREV,  RM_VALD,  RM_NEXT,  _______,  _______,            _______,                      KC_LEFT,  _______,  KC_RGHT,
   // Sh_L   Z         X         C         V         B         N         M         ,         .         /                   Sh_R                Up                  1         2         3         Enter
-  _______,  RM_SPDD,  RM_SPDU,  _______,  MY_WINV,  _______,  _______,  _______,  RM_HUED,  RM_HUEU,  _______,            _______,            KC_PGUP,            KC_END,   KC_DOWN,  KC_PGDN,  _______,
+  _______,  RM_SPDD,  RM_SPDU,  _______,  MY_WINV,  _______,  _______,  _______,  RM_HUED,  RM_HUEU,  _______,            _______,            KC_PGUP,            KC_END,   KC_DOWN,  KC_PGDN,  MY_TGPENT,
   // Ct_L   Win_L     Alt_L                         SPACE                                   Alt_R     FN        Ct_R                Left      Down      Right               0         .
   _______,  _______,  _______,                      MY_WINSPC,                              _______,  MY_TOGGUI,_______,            KC_HOME,  KC_PGDN,  KC_END,             KC_INS,   KC_DEL)
 };
@@ -76,6 +77,7 @@ static const uint8_t num_keys[] = {
 };
 static bool enable_win_key = true;
 static bool enable_num_plus_to_right_click = false;
+static bool enable_num_enter_to_left_click = false;
 static bool enable_ins_to_break = false;
 static uint32_t secure_light_start_time = 0;
 
@@ -113,11 +115,14 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
   if (enable_num_plus_to_right_click)
     set_hsv(53, hue_red, 255, light_brightness); // Num plus
 
+  if (enable_num_enter_to_left_click)
+    set_hsv(86, hue_red, 255, light_brightness); // Num enter
+
   if (enable_ins_to_break)
-    set_hsv(16, hue_red, 255, 255); // Pgup, now Ins
+    set_hsv(16, hue_red, 255, light_brightness); // Pgup, now Ins
   
   if (secure_is_locked())
-    set_hsv(13, hue_red, 255, 255); // Pcsr, now Del
+    set_hsv(13, hue_red, 255, light_brightness); // Pcsr, now Del
 
   if (secure_light_start_time) {
     uint32_t elapsed = timer_elapsed32(secure_light_start_time);
@@ -213,9 +218,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_PPLS:
     if (enable_num_plus_to_right_click) {
       if (record->event.pressed)
-        register_code16(MS_RGHT);
+        register_code16(MS_BTN2);
       else
-        unregister_code16(MS_RGHT);
+        unregister_code16(MS_BTN2);
+      return false;
+    }
+    return true;
+  
+  case MY_TGPENT:
+    if (record->event.pressed)
+      enable_num_enter_to_left_click = !enable_num_enter_to_left_click;
+    return false;
+  
+  case KC_PENT:
+    if (enable_num_enter_to_left_click) {
+      if (record->event.pressed)
+        register_code16(MS_BTN1);
+      else
+        unregister_code16(MS_BTN1);
       return false;
     }
     return true;
